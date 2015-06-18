@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+<body>
+	<div ng-app="myApp" ng-controller="myCtrl">
+		<h1>URL Shortener</h1>
+		<p>Crea il tuo URL</p>
+		<p align="left">
+			Long URL : <input type="text" ng-model="longURL"> Short URL :
+			<input type="text" ng-model="shortURL">
+		</p>
+		<button ng-click="toggle()">Salva</button>
+		<button ng-click="">Generate</button>
+		<p ng-hide="myVar">{{result}}</p>
+		<p>Visualizza l'URL</p>
+		<p align="left">
+			Short URL : <input type="text" ng-model="shortUrl"> {{assoc}}
+			{{name}}
+		</p>
+		<button ng-click="viewStats()">View stats</button>
+		<button ng-click="fun()">Show long URL</button>
+		<button ng-click="vai()">GO</button>
+		<p ng-hide="a">Ecco le statistiche:</p>
+		<script>
+			var app = angular.module('myApp', []);
+			app
+					.controller(
+							'myCtrl',
+							function($scope, $http, $window) {
+								$scope.result = 'Processing...';
+								$scope.myVar = true;
+								$scope.a = true;
+								$scope.fun = function() {
+									$http
+											.get(
+													"http://localhost:4567/getLongUrl?shortUrl=1Tinyurl")
+											.success(
+													function(response) {
+														$scope.name = response.data.longUrl;
+														$scope.assoc = "long URL associato: ";
+													}).error(
+													function(response) {
+														alert("erroreeee");
+													});
+								}
+								$scope.toggle = function() {
+									$scope.myVar = !$scope.myVar;
+								}
+								$scope.vai = function() {
+									var e = $scope.name;
+									var b="http://"+e;
+									$scope.w =b;
+									$window.open($scope.w);
+								}
+								$scope.viewStats = function() {
+									$scope.a = !$scope.a;
+								}
+							});
+		</script>
+	</div>
+</body>
+</html>
