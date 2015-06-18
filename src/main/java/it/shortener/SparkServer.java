@@ -1,3 +1,4 @@
+package it.shortener;
 import static spark.Spark.*;
 
 import java.io.IOException;

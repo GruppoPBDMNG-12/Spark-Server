@@ -1,3 +1,4 @@
+package it.shortener;
 
 public class MyJSonString {
 	private String json;
