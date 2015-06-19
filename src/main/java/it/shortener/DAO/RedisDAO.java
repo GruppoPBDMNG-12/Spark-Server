@@ -1,29 +1,30 @@
 package it.shortener.DAO;
 
+import it.shortener.MyJSonString;
 import it.shortener.UrlAssociation;
 
 import java.util.HashMap;
 
 class RedisDAO {
-	public static HashMap<String, UrlAssociation>urlAssociations=new HashMap<String, UrlAssociation>();
+	public static HashMap<String, MyJSonString>urlAssociations=new HashMap<String, MyJSonString>();
 	
 	
 	
 	private static final RedisDAO instance=new RedisDAO();
 	private RedisDAO(){
-		urlAssociations.put("1Tinyurl",new UrlAssociation("1Tinyurl","www.google.it"));
+		//urlAssociations.put("1Tinyurl",new UrlAssociation("1Tinyurl","www.google.it"));
 	}
 	public static RedisDAO getInstance(){
 		return instance;
 	}
 	
-	public String getValue(String shortUrl){
-		return urlAssociations.get(shortUrl).getJsonString().getJsonString();
+	public MyJSonString getValue(String shortUrl){
+		return urlAssociations.get(shortUrl);
 	}
 	
 	
-	public boolean setValue(String shortUrl,/*String*/UrlAssociation urlAssociationJson){
-		urlAssociations.put(shortUrl, urlAssociationJson);
+	public boolean setValue(String shortUrl,MyJSonString jsonString){
+		urlAssociations.put(shortUrl, jsonString);
 		return true;
 	}	
 }

@@ -23,11 +23,15 @@ public class UrlAssociation {
 	private String shortUrl;
 	private String longUrl;
 	private Date DateOf;//TODO
+	private boolean isEmpty=false;;
 	private ArrayList<Click> clicks;
 	
 	
 	public UrlAssociation(String shortUrl, MyJSonString jsonString){
 		this.shortUrl=shortUrl;
+		if(jsonString==null){
+			isEmpty=true;
+		}
 		MyJSonReader jR=new MyJSonReader(jsonString);
 		this.longUrl=jR.getNode(LONG_URL_KEY);
 	}
@@ -128,5 +132,9 @@ public class UrlAssociation {
 		//giorno in cui e' stato aggiunto
 		
 		return "";
+	}
+
+	public boolean isEmpty() {
+		return isEmpty;
 	}
 }

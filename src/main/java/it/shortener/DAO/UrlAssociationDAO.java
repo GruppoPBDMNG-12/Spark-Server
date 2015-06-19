@@ -16,28 +16,26 @@ public class UrlAssociationDAO {
 	}
 	
 	public String getLongUrl(String shortUrl){
-		return dao.getValue(shortUrl);
+		UrlAssociation ua=new UrlAssociation(shortUrl, dao.getValue(shortUrl));
+		if(ua.isEmpty()){
+			return "error";//TODO
+		}
+		return ua.getLongUrl();
 	}
-	
 	
 	public boolean addAssociation(String shortUrl,String longUrl){
 		UrlAssociation ua=new UrlAssociation(shortUrl, longUrl);
-		return dao.setValue(shortUrl, ua);
+		return dao.setValue(shortUrl, ua.getJsonString());
 	}
 	
 	public void addClick(String shortUrl,String ipAddress){
 		UrlAssociation ua=new UrlAssociation(shortUrl, dao.getValue(shortUrl));
 		ua.addClick(ipAddress);
-		dao.setValue(shortUrl, ua);
-	}
-	
-	public boolean setValue(UrlAssociation urlAssociation){
-		 
-		return false;
+		dao.setValue(shortUrl, ua.getJsonString());
 	}
 	
 	public boolean isExistingShortUrl(String shortUrl){
-		return true;//!(getValue(shortUrl)==null);
+		return (dao.getValue(shortUrl)==null);
 	}
 	
 }
