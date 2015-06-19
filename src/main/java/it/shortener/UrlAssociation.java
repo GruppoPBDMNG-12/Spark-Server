@@ -97,9 +97,6 @@ public class UrlAssociation {
 			}
 		}
 		
-
-		
-		
 		String maxLoc=null;
 		Set<String>locations=locationsClicks.keySet();
 		for(String s:locations){
