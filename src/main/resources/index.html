@@ -11,7 +11,7 @@
 			<input type="text" ng-model="shortURL">
 		</p>
 		<button ng-click="toggle()">Salva</button>
-		<button ng-click="">Generate</button>
+		<button ng-click="generate()">Generate</button>
 		<p ng-hide="myVar">{{result}}</p>
 		<p>Visualizza l'URL</p>
 		<p align="left">
@@ -22,41 +22,49 @@
 		<button ng-click="fun()">Show long URL</button>
 		<button ng-click="vai()">GO</button>
 		<p ng-hide="a">Ecco le statistiche:</p>
+		{{nome}}
 		<script>
 			var app = angular.module('myApp', []);
-			app
-					.controller(
-							'myCtrl',
-							function($scope, $http, $window) {
-								$scope.result = 'Processing...';
-								$scope.myVar = true;
-								$scope.a = true;
-								$scope.fun = function() {
-									$http
-											.get(
-													"http://localhost:4567/getLongUrl?shortUrl=1Tinyurl")
-											.success(
-													function(response) {
-														$scope.name = response.data.longUrl;
-														$scope.assoc = "long URL associato: ";
-													}).error(
-													function(response) {
-														alert("erroreeee");
-													});
-								}
-								$scope.toggle = function() {
-									$scope.myVar = !$scope.myVar;
-								}
-								$scope.vai = function() {
-									var e = $scope.name;
-									var b="http://"+e;
-									$scope.w =b;
-									$window.open($scope.w);
-								}
-								$scope.viewStats = function() {
-									$scope.a = !$scope.a;
-								}
-							});
+			app.controller('myCtrl', function($scope, $http, $window) {
+				$scope.result = 'Processing...';
+				$scope.myVar = true;
+				$scope.a = true;
+				$scope.render = function() {
+					return "http://localhost:4567/getLongUrl?shortUrl="
+							+ $scope.shortUrl;
+				}
+				$scope.fun = function() {
+					$http.get($scope.render()).success(function(response) {
+						$scope.assoc = "long URL associato: ";
+						$scope.name = response.data.longUrl;
+					}).error(function(response) {
+						alert("erroreeee");
+					});
+				}
+				$scope.toggle = function() {
+					$scope.myVar = !$scope.myVar;
+				}
+				$scope.vai = function() {
+					var e = $scope.name;
+					$scope.w = e;
+					$window.open($scope.w);
+				}
+				$scope.perStats = function() {
+					return "http://localhost:4567/getStats?shortUrl="
+							+ $scope.shortUrl;
+				}
+				$scope.viewStats = function() {
+					$scope.a = !$scope.a;
+					$http.get($scope.perStats()).success(function(risposta) {
+						$scope.nome = risposta.data;
+					}).error(function(risposta) {
+						alert("erroreeee");
+					});
+				}
+				$scope.generate = function() {
+
+				}
+			});
 		</script>
 	</div>
 </body>

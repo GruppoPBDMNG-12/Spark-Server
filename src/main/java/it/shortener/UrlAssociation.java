@@ -9,7 +9,7 @@ import java.util.Set;
 
 
 public class UrlAssociation {
-	private static final String STATS_JSON="{\"name\"=\"?\", \"value\"=\"$\"";
+	private static final String STATS_JSON="{\"name\":\"?\", \"value\":\"$\"}";
 	private static final String ARRAY_JSON_BEGIN="[";
 	private static final String ARRAY_JSON_END="]";
 	private static final String ADDED_DATE_KEY="Added on:";
@@ -58,8 +58,8 @@ public class UrlAssociation {
 		return longUrl;
 	}
 	public String getStats(){
-		int numClicks=clicks.size();
-		return STATS_JSON.replace("?", numClicks+"");
+		
+		return generateStats();
 		//RITORNERA' json con le statistiche da inviare al client
 	}
 	public MyJSonString getJsonString(){
@@ -67,7 +67,6 @@ public class UrlAssociation {
 	}
 	
 	private String generateStats(){
-		String statsStrinJson=ARRAY_JSON_BEGIN;
 		HashMap<String,Integer>locationsClicks=new HashMap<String, Integer>();
 		int clicksDay=0,clicksMonth=0,clicksYear=0;
 
@@ -112,26 +111,26 @@ public class UrlAssociation {
 				}
 			}
 		}
-		
-		statsStrinJson+=STATS_JSON.replace("?", ADDED_DATE_KEY);
-		statsStrinJson=statsStrinJson.replace("$", DateOf+"");
+		String statsStrinJson=ARRAY_JSON_BEGIN;
+		/*statsStrinJson+=STATS_JSON.replace("?", ADDED_DATE_KEY);
+		statsStrinJson=statsStrinJson.replace("$", DateOf+"")+",";*/
 		statsStrinJson+=STATS_JSON.replace("?", NUM_TOT_CLICK_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicks.size()+"");
+		statsStrinJson=statsStrinJson.replace("$", clicks.size()+"")+",";
 		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_TODAY_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksDay+"");
+		statsStrinJson=statsStrinJson.replace("$", clicksDay+"")+",";
 		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_MONTH_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksMonth+"");
+		statsStrinJson=statsStrinJson.replace("$", clicksMonth+"")+",";
 		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_YEAR_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksYear+"");
+		statsStrinJson=statsStrinJson.replace("$", clicksYear+"")+",";
 		statsStrinJson+=STATS_JSON.replace("?", MAX_LOC_KEY);
 		statsStrinJson=statsStrinJson.replace("$", maxLoc+"");
-		
+		statsStrinJson+=ARRAY_JSON_END;
 		
 		
 		//country with more clicks, How many clicks last day, week, Month
 		//giorno in cui e' stato aggiunto
 		
-		return "";
+		return statsStrinJson;
 	}
 
 	public boolean isEmpty() {

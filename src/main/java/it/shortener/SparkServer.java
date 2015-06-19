@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
+import org.eclipse.jetty.server.Authentication.ResponseSent;
+
 import spark.*;
  
 public class SparkServer {
@@ -27,6 +29,7 @@ public class SparkServer {
 	    
 	    public static void main(String[] args) {
 	    	urlAssociations.put("1Tinyurl",new UrlAssociation("1Tinyurl","www.google.it"));
+	    	System.out.println(urlAssociations.get("1Tinyurl").getStats());
 	    	get(new Route("/addShortUrl") {	
 	            @Override
 	            public Object handle(Request request, Response response) {
@@ -91,7 +94,8 @@ public class SparkServer {
 	            	String shortUrl=request.queryParams("shortUrl");
 	            	String toReturn="";
 	            	if(urlAssociations.containsKey(shortUrl)){
-	            		toReturn=JSON_STRING_BEGINNING+urlAssociations.get(shortUrl).getStats()+JSON_STRING_ENDING;       		
+	            		toReturn=JSON_STRING_BEGINNING+urlAssociations.get(shortUrl).getStats()+JSON_STRING_ENDING;       	
+	            		System.out.println(toReturn);
 	            	}else{
 	            		toReturn=ERROR_KEY_NOT_FOUND;
 	            	}
