@@ -22,6 +22,7 @@ public class SparkServer {
 		private static final String GENERATED_SHORT_URL_JSON=JSON_STRING_BEGINNING+"{\"shortUrl\":\"?\"}"+JSON_STRING_ENDING;
 		private static final String GET_LONG_URL_JSON=JSON_STRING_BEGINNING+"{\"longUrl\":\"?\"}"+JSON_STRING_ENDING;
 		private static final String ERROR_KEY_NOT_FOUND=JSON_STRING_BEGINNING+"{\"ERROR\":\"Short url not mapped\"}"+JSON_STRING_ENDING;
+		protected static final String ERROR_ALREADY_MAPPED_LONG_URL = null;
 		public static HashMap<String, UrlAssociation>urlAssociations=new HashMap<String, UrlAssociation>();
 	    
 	    public static void main(String[] args) {
@@ -43,12 +44,17 @@ public class SparkServer {
 	            @Override
 	            public Object handle(Request request, Response response) {
 	                String longUrl=request.queryParams("longUrl");
-	                String shortUrl="";
-	                do{
-	                	int random=(int)Math.random()*1000;
-	                	shortUrl=longUrl.hashCode()+"_"+random;
-	                }while(urlAssociations.containsKey(shortUrl));
-	                String toReturn=GENERATED_SHORT_URL_JSON.replace("?", shortUrl);
+	                String shortUrl=ShortUrlGenerator.generateShortUrl(longUrl);
+	                String toReturn="";
+	                if(urlAssociations.containsKey(shortUrl)){
+	                	if(urlAssociations.get(shortUrl).getLongUrl().equalsIgnoreCase(longUrl)){
+	                		toReturn=ERROR_ALREADY_MAPPED_LONG_URL;
+	                	}else{
+	                		shortUrl=ShortUrlGenerator.generateShortUrl(longUrl+Math.random()*1000);
+	                	}
+	                }else{
+	                	toReturn=GENERATED_SHORT_URL_JSON.replace("?", shortUrl);
+	                }
 	                return toReturn;
 	            }
 	        });
