@@ -126,10 +126,6 @@ public class UrlAssociation {
 		statsStrinJson=statsStrinJson.replace("$", maxLoc+"");
 		statsStrinJson+=ARRAY_JSON_END;
 		
-		
-		//country with more clicks, How many clicks last day, week, Month
-		//giorno in cui e' stato aggiunto
-		
 		return statsStrinJson;
 	}
 
