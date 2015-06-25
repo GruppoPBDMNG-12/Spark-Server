@@ -1,5 +1,7 @@
 package it.shortener;
 import static spark.Spark.*;
+import it.shortener.DAO.RedisDAO;
+import it.shortener.DAO.UrlAssociationDAO;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -10,37 +12,46 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.json.JsonObject;
+import javax.print.DocFlavor.URL;
+
 import org.eclipse.jetty.server.Authentication.ResponseSent;
+import org.json.JSONObject;
 
 import spark.*;
  
 public class SparkServer {
-		private static final String JSON_STRING_BEGINNING="{\"data\": ";
-		private static final String JSON_STRING_ENDING="}";
+	
+		private static final String BEGINNING_JSON_KEY="data";
 		
+		private static final String GET_LONG_URL_KEY="longUrl";
+		private static final String STATS_KEY = "stats";
 		
-		private static final String ADD_SHORT_URL_OK_JSON=JSON_STRING_BEGINNING+"{\"add\":\"ok\"}+JSON_STRING_ENDING";
-		private static final String ADD_SHORT_URL_ERR_KEY_JSON=JSON_STRING_BEGINNING+"{\"add\":\"key\"}"+JSON_STRING_ENDING;
-		private static final String GENERATED_SHORT_URL_JSON=JSON_STRING_BEGINNING+"{\"shortUrl\":\"?\"}"+JSON_STRING_ENDING;
-		private static final String GET_LONG_URL_JSON=JSON_STRING_BEGINNING+"{\"longUrl\":\"?\"}"+JSON_STRING_ENDING;
-		private static final String ERROR_KEY_NOT_FOUND=JSON_STRING_BEGINNING+"{\"ERROR\":\"Short url not mapped\"}"+JSON_STRING_ENDING;
-		protected static final String ERROR_ALREADY_MAPPED_LONG_URL = null;
-		public static HashMap<String, UrlAssociation>urlAssociations=new HashMap<String, UrlAssociation>();
-	    
+		private static final String ERR_KEY="err";
+		private static final String NO_ERR_VALUE="ok";
+		private static final String ERR_USED_SHORT_URL_VALUE="used";
+		private static final String ERR_KEY_NOT_FOUND_VALUE="keyNotFound";	    
+		
 	    public static void main(String[] args) {
-	    	urlAssociations.put("1Tinyurl",new UrlAssociation("1Tinyurl","www.google.it"));
-	    	System.out.println(urlAssociations.get("1Tinyurl").getStats());
+	    	RedisDAO.getInstance().remove("pronto");
+	    	System.out.println("inserito?"+UrlAssociation.createNewAssociation("pronto", "sonoPronto"));
+	    	System.out.println("eccolo "+UrlAssociation.getUrlAssociation("pronto").getLongUrl());
+	    	
 	    	get(new Route("/addShortUrl") {	
 	            @Override
 	            public Object handle(Request request, Response response) {
-	            	
+	            	JSONObject dataObj=new JSONObject();
 	                String shortUrl=request.queryParams("shortUrl");
 	                String longUrl=request.queryParams("longUrl");
-	                if(urlAssociations.containsKey(shortUrl)){
-	                	return ADD_SHORT_URL_ERR_KEY_JSON;
+	                boolean isCreated=UrlAssociation.createNewAssociation(shortUrl,longUrl);
+	                if(isCreated){
+		            	dataObj.put(ERR_KEY, NO_ERR_VALUE);
+	                }else{
+		            	dataObj.put(ERR_KEY, ERR_USED_SHORT_URL_VALUE);
 	                }
-	                urlAssociations.put(shortUrl,new UrlAssociation(shortUrl,longUrl));
-	                return ADD_SHORT_URL_OK_JSON;
+	                JSONObject toReturn=new JSONObject();
+	                toReturn.put(BEGINNING_JSON_KEY, dataObj);
+	                return toReturn;
 	            }
 	        });
 	    	get(new Route("/generateShortUrl") {
@@ -49,15 +60,17 @@ public class SparkServer {
 	                String longUrl=request.queryParams("longUrl");
 	                String shortUrl=ShortUrlGenerator.generateShortUrl(longUrl);
 	                String toReturn="";
-	                if(urlAssociations.containsKey(shortUrl)){
-	                	if(urlAssociations.get(shortUrl).getLongUrl().equalsIgnoreCase(longUrl)){
+	                /*TODO CREATE GENERATOR CLASS
+	                String existingLongUrl=uaDAO.getUrlAssociation(shortUrl).getLongUrl();
+	                if(existingLongUrl!=null){
+	                	if(existingLongUrl.equalsIgnoreCase(longUrl)){
 	                		toReturn=ERROR_ALREADY_MAPPED_LONG_URL;
 	                	}else{
 	                		shortUrl=ShortUrlGenerator.generateShortUrl(longUrl+Math.random()*1000);
 	                	}
 	                }else{
 	                	toReturn=GENERATED_SHORT_URL_JSON.replace("?", shortUrl);
-	                }
+	                }*/
 	                return toReturn;
 	            }
 	        });
@@ -69,7 +82,6 @@ public class SparkServer {
 						os = response.raw().getOutputStream();
 						IndexFileReader.getTextFile(os);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					return "";
@@ -79,12 +91,19 @@ public class SparkServer {
 				@Override
 				public Object handle(Request request, Response response) {
 					String shortUrl = request.queryParams("shortUrl");
-					String toReturn =GET_LONG_URL_JSON;
-					if (urlAssociations.containsKey(shortUrl)) {
-						toReturn=toReturn.replace("?",urlAssociations.get(shortUrl)
-								.getLongUrl());
+					
+					String longUrl=UrlAssociation.getUrlAssociation(shortUrl).getLongUrl();
+					JSONObject dataObj=new JSONObject();
+					
+					if (longUrl!=null) {
+						dataObj.put(ERR_KEY, NO_ERR_VALUE);
+						dataObj.put(GET_LONG_URL_KEY,longUrl);
+					}else{
+						dataObj.put(ERR_KEY, ERR_KEY_NOT_FOUND_VALUE);
 					}
-					return toReturn;
+					JSONObject toReturn=new JSONObject();
+	                toReturn.put(BEGINNING_JSON_KEY, dataObj);
+	                return toReturn;
 				}
 			});
 	        
@@ -92,30 +111,34 @@ public class SparkServer {
 	            @Override
 	            public Object handle(Request request, Response response) {
 	            	String shortUrl=request.queryParams("shortUrl");
-	            	String toReturn="";
-	            	if(urlAssociations.containsKey(shortUrl)){
-	            		toReturn=JSON_STRING_BEGINNING+urlAssociations.get(shortUrl).getStats()+JSON_STRING_ENDING;       	
-	            		System.out.println(toReturn);
+	            	UrlAssociation ua=UrlAssociation.getUrlAssociation(shortUrl);
+	            	
+	            	JSONObject dataObj=new JSONObject();
+	            	if(ua==null){
+	            		dataObj.put(ERR_KEY, ERR_KEY_NOT_FOUND_VALUE);
 	            	}else{
-	            		toReturn=ERROR_KEY_NOT_FOUND;
+	            		ua.addClick(request.ip());
+	            		dataObj.put(ERR_KEY, NO_ERR_VALUE);
+						dataObj.put(STATS_KEY, ua.getStats());
 	            	}
+	            	JSONObject toReturn=new JSONObject();
+	                toReturn.put(BEGINNING_JSON_KEY, dataObj);
+	                
+	                System.out.println(toReturn);
 	                return toReturn;
 	            }
 	        });
 	        get(new Route("/addClick") {
 	            @Override
 	            public Object handle(Request request, Response response) {
+	            	System.out.println("ADD CLICK");
 	            	String shortUrl=request.queryParams("shortUrl");
-	            	if(urlAssociations.containsKey(shortUrl)){
+	            	UrlAssociation ua=UrlAssociation.getUrlAssociation(shortUrl);
+	            	if(ua!=null){
 		            	String ipAddress=request.ip();
-	            		urlAssociations.get(shortUrl).addClick(ipAddress);
+	            		ua.addClick(ipAddress);
 	            	}
-
-            		DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.ENGLISH);
-            		Date today= new Date();
-            		String dateOut= dateFormatter.format(today);
-            		
-	                return dateOut;
+	                return "";
 	            }
 	        });
 	        

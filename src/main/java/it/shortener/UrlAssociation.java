@@ -1,44 +1,66 @@
 package it.shortener;
+import it.shortener.DAO.UrlAssociationDAO;
+
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 
 public class UrlAssociation {
-	private static final String STATS_JSON="{\"name\":\"?\", \"value\":\"$\"}";
-	private static final String ARRAY_JSON_BEGIN="[";
-	private static final String ARRAY_JSON_END="]";
+	private static final String SHORTURL_JSON_KEY="shortUrl";
+	private static final String LONGURL_JSON_KEY="longUrl";
+	private static final String CLICKS_ARRAY_JSON_KEY="clicks";
+	private static final String DATE_JSON_KEY="date";
+	
 	private static final String ADDED_DATE_KEY="Added on:";
 	private static final String NUM_TOT_CLICK_KEY="# Tot Clicks";
 	private static final String NUM_CLICKS_TODAY_KEY="Today's clicks";
 	private static final String NUM_CLICKS_MONTH_KEY="This month clicks";
 	private static final String NUM_CLICKS_YEAR_KEY="This year clicks";
 	private static final String MAX_LOC_KEY="Max number of clicks from";
-	
-	public static final String LONG_URL_KEY="LongUrl";
+
 	private String shortUrl;
 	private String longUrl;
-	private Date DateOf;//TODO
-	private boolean isEmpty=false;;
+	private Date date;
 	private ArrayList<Click> clicks;
 	
+	private static final DateFormat dateFormatter = DateFormat.getDateInstance(DateFormat.DEFAULT, Locale.ENGLISH);
+	private static UrlAssociationDAO uaDAO=UrlAssociationDAO.getInstance();
 	
 	public UrlAssociation(String shortUrl, MyJSonString jsonString){
 		this.shortUrl=shortUrl;
-		if(jsonString==null){
-			isEmpty=true;
+		String a="{\"test\": "+jsonString.getJsonString()+"}";
+		JSONObject obj=new JSONObject(a);
+		obj=obj.getJSONObject("test");
+		this.longUrl=obj.getString(LONGURL_JSON_KEY);
+		this.shortUrl=obj.getString(SHORTURL_JSON_KEY);
+		try {
+			this.date=dateFormatter.parse(obj.getString(DATE_JSON_KEY));
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
-		MyJSonReader jR=new MyJSonReader(jsonString);
-		this.longUrl=jR.getNode(LONG_URL_KEY);
+		JSONArray clicksJSONArray=obj.getJSONArray(CLICKS_ARRAY_JSON_KEY);
+		clicks=new ArrayList<Click>();
+		for(int i=0;i<clicksJSONArray.length();i++){
+			clicks.add(new Click(clicksJSONArray.getJSONObject(i)));
+		}
+		
 	}
 	
-	public UrlAssociation(String shortUrl,String longUrl){
+	private UrlAssociation(String shortUrl,String longUrl){
 		this.shortUrl=shortUrl;
 		this.longUrl=longUrl;
+		this.date=new Date();
 		checkLongUrl();
 		clicks=new ArrayList<Click>();
 	}
@@ -47,37 +69,87 @@ public class UrlAssociation {
 		if(!longUrl.startsWith("http://") || !longUrl.startsWith("https://")){
 			longUrl="http://"+longUrl;
 		}
-		System.out.println(longUrl);
 	}
+	
+	public JSONArray getStats(){
+		return generateStats();
+	}
+	
 
-	public void addClick(String ipAddress){
-		clicks.add(new Click(IPLocator.getIstance().getLocation(ipAddress).toString()));
+	public String getShortUrl() {
+		return shortUrl;
 	}
 	
 	public String getLongUrl(){
 		return longUrl;
 	}
-	public String getStats(){
-		
-		return generateStats();
-		//RITORNERA' json con le statistiche da inviare al client
+
+	public void addClick(String ipAddress){
+		Date today= new Date();
+		try{
+			clicks.add(new Click(IPLocator.getIstance().getLocation(ipAddress).toString(),today));
+		}catch(Exception e){
+			System.out.println(e.getMessage()+e.getCause());
+		}
+		uaDAO.updateUrlAssociation(this);
 	}
+
 	public MyJSonString getJsonString(){
-		return null;
+		JSONObject uaJson=new JSONObject();
+		uaJson.put(SHORTURL_JSON_KEY, shortUrl);
+		uaJson.put(LONGURL_JSON_KEY, longUrl);
+		uaJson.put(DATE_JSON_KEY, dateFormatter.format(date));
+		
+		JSONArray clickJsonArray=new JSONArray();
+		for(Click c: clicks){
+			clickJsonArray.put(c.toJason());
+		}
+		
+		uaJson.put(CLICKS_ARRAY_JSON_KEY, clickJsonArray);
+		return new MyJSonString(uaJson.toString());
 	}
 	
-	private String generateStats(){
+
+	public static boolean createNewAssociation(String shortUrl,String longUrl){
+		UrlAssociation ua=new UrlAssociation(shortUrl,longUrl);
+		return uaDAO.newAssociation(ua);
+	}
+	
+	public static UrlAssociation getUrlAssociation(String shortUrl){
+		return uaDAO.getUrlAssociation(shortUrl);
+	}
+	
+	
+	/*
+	 * TEST
+	 */
+	/*public static void main(String[] args) {
+		UrlAssociation ua=new UrlAssociation("test1","test2");
+		ua.getJsonString();
+		ua.addClick("192.45.21.23");
+		ua.addClick("123.223.21.53");
+		ua.getJsonString();
+		System.out.println(ua.generateStats());
+		System.out.println("JSON URL ASC: "+ua.getJsonString().getJsonString());
+	}*/
+	
+	
+	
+	
+	private JSONArray generateStats(){
+
 		HashMap<String,Integer>locationsClicks=new HashMap<String, Integer>();
 		int clicksDay=0,clicksMonth=0,clicksYear=0;
 
 		Date today=new Date();
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(today);
+
 		int todayMonth=cal.get(Calendar.MONTH);
 		int todayDay=cal.get(Calendar.DAY_OF_MONTH);
 		int todayYear=cal.get(Calendar.YEAR);
-		
-		for(int i=0;i<clicks.size();i++){
+	
+		for(int i=0;i<clicks.size();i++){	
 			String loc=clicks.get(i).geoLocation();
 			if(locationsClicks.containsKey(loc)){
 				locationsClicks.put(loc, locationsClicks.get(loc)+1);
@@ -99,7 +171,7 @@ public class UrlAssociation {
 				}
 			}
 		}
-		
+
 		String maxLoc=null;
 		Set<String>locations=locationsClicks.keySet();
 		for(String s:locations){
@@ -111,25 +183,38 @@ public class UrlAssociation {
 				}
 			}
 		}
-		String statsStrinJson=ARRAY_JSON_BEGIN;
-		/*statsStrinJson+=STATS_JSON.replace("?", ADDED_DATE_KEY);
-		statsStrinJson=statsStrinJson.replace("$", DateOf+"")+",";*/
-		statsStrinJson+=STATS_JSON.replace("?", NUM_TOT_CLICK_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicks.size()+"")+",";
-		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_TODAY_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksDay+"")+",";
-		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_MONTH_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksMonth+"")+",";
-		statsStrinJson+=STATS_JSON.replace("?", NUM_CLICKS_YEAR_KEY);
-		statsStrinJson=statsStrinJson.replace("$", clicksYear+"")+",";
-		statsStrinJson+=STATS_JSON.replace("?", MAX_LOC_KEY);
-		statsStrinJson=statsStrinJson.replace("$", maxLoc+"");
-		statsStrinJson+=ARRAY_JSON_END;
+		JSONArray statsJsonArray=new JSONArray();
+		JSONObject addedOnJsonObj=new JSONObject();
+		addedOnJsonObj.put("name", ADDED_DATE_KEY);
+		addedOnJsonObj.put("value",dateFormatter.format(date));
+		statsJsonArray.put(addedOnJsonObj);
 		
-		return statsStrinJson;
+		JSONObject numTotClickJsonObj=new JSONObject();
+		numTotClickJsonObj.put("name", NUM_TOT_CLICK_KEY);
+		numTotClickJsonObj.put("value", clicks.size());
+		statsJsonArray.put(numTotClickJsonObj);
+
+		JSONObject numTodayClickJsonObj=new JSONObject();
+		numTodayClickJsonObj.put("name", NUM_CLICKS_TODAY_KEY);
+		numTodayClickJsonObj.put("value", clicksDay);
+		statsJsonArray.put(numTodayClickJsonObj);
+
+		JSONObject numMonthClickJsonObj=new JSONObject();
+		numMonthClickJsonObj.put("name", NUM_CLICKS_MONTH_KEY);
+		numMonthClickJsonObj.put("value", clicksMonth);
+		statsJsonArray.put(numMonthClickJsonObj);
+		
+		JSONObject numYearClickJsonObj=new JSONObject();
+		numYearClickJsonObj.put("name", NUM_CLICKS_YEAR_KEY);
+		numYearClickJsonObj.put("value", clicksYear);
+		statsJsonArray.put(numYearClickJsonObj);
+
+		JSONObject numMaxLocJsonObj=new JSONObject();
+		numMaxLocJsonObj.put("name", MAX_LOC_KEY);
+		numMaxLocJsonObj.put("value", maxLoc);
+		statsJsonArray.put(numMaxLocJsonObj);		
+		return statsJsonArray;
 	}
 
-	public boolean isEmpty() {
-		return isEmpty;
-	}
+
 }

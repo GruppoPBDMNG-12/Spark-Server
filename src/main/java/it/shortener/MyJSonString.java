@@ -8,4 +8,7 @@ public class MyJSonString {
 	public String getJsonString(){
 		return json;
 	}
+	public String toString(){
+		return json;
+	}
 }

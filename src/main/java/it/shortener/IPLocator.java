@@ -15,7 +15,7 @@ public class IPLocator {
 
 	public static void main(String[] args) {
 		IPLocator obj = new IPLocator();
-		ServerLocation location = obj.getLocation("126.190.36.45");
+		ServerLocation location = obj.getLocation("192.168.0.1");
 		System.out.println(location);
 	}
 
@@ -29,13 +29,12 @@ public class IPLocator {
 		try {
 
 			serverLocation = new ServerLocation();
-
 			LookupService lookup = new LookupService(file,
 					LookupService.GEOIP_MEMORY_CACHE);
 			Location locationServices = lookup.getLocation(ipAddress);
-
 			// serverLocation.setCountryCode(locationServices.countryCode);
 			serverLocation.setCountryName(locationServices.countryName);
+
 			/*
 			 * serverLocation.setRegion(locationServices.region);
 			 * serverLocation.setRegionName(regionName.regionNameByCode(
@@ -47,10 +46,9 @@ public class IPLocator {
 			 * serverLocation
 			 * .setLongitude(String.valueOf(locationServices.longitude));
 			 */
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
+		} catch (Exception e) {
+			serverLocation.setCountryName("localhost");
 		}
-
 		return serverLocation;
 
 	}

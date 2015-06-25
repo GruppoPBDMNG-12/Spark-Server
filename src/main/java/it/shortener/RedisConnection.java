@@ -8,9 +8,11 @@ public class RedisConnection {
 	      jedis.connect();
 	      System.out.println("Connection to server sucessfully");
 	      System.out.println("Server is running: "+jedis.ping());
-	      jedis.set("tutorial-name", "Redis tutorial");
+	      jedis.set("pronto", "Redis tutorial");
 	      // Get the stored data and print it
-	      System.out.println("Stored string in redis:: "+ jedis.get("tutorial-name"));
+	      System.out.println("Stored string in redis:: "+ jedis.get("pronto"));
+	      jedis.del("pronto");
+	      System.out.println(jedis.get("pronto"));
 	      jedis.close();
 	 }
 }

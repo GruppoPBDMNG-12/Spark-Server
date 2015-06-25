@@ -5,26 +5,48 @@ import it.shortener.UrlAssociation;
 
 import java.util.HashMap;
 
-class RedisDAO {
-	public static HashMap<String, MyJSonString>urlAssociations=new HashMap<String, MyJSonString>();
-	
+import redis.clients.jedis.Jedis;
+
+public class RedisDAO {
+		private Jedis jedis = new Jedis("127.0.0.1",6379);
 	
 	
 	private static final RedisDAO instance=new RedisDAO();
 	private RedisDAO(){
-		//urlAssociations.put("1Tinyurl",new UrlAssociation("1Tinyurl","www.google.it"));
+		
 	}
 	public static RedisDAO getInstance(){
 		return instance;
 	}
 	
+	public void remove(String shortUrl){
+		openConnection();
+		jedis.del(shortUrl);
+		closeConnection();
+	}
 	public MyJSonString getValue(String shortUrl){
-		return urlAssociations.get(shortUrl);
+		openConnection();
+		MyJSonString jsonString=new MyJSonString(jedis.get("shortUrl"));
+		closeConnection();
+		return jsonString;
 	}
 	
 	
-	public boolean setValue(String shortUrl,MyJSonString jsonString){
-		urlAssociations.put(shortUrl, jsonString);
-		return true;
+	public void setValue(String shortUrl,MyJSonString jsonString){
+		System.out.println("set value "+jsonString);
+	    jedis.set("shortUrl", jsonString.getJsonString());
 	}	
+	
+	private void openConnection(){
+	      jedis.connect();
+	}
+	private void closeConnection(){
+		jedis.close();
+	}
+	
+	public static void main(String[] args) {
+		/*MyJSonString a=RedisDAO.getInstance().getValue("csada");
+		System.out.println(a.getJsonString());*/
+		RedisDAO.getInstance().remove("pronto");
+	}
 }

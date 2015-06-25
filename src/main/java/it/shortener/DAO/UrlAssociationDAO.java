@@ -1,8 +1,7 @@
 package it.shortener.DAO;
 
+import it.shortener.MyJSonString;
 import it.shortener.UrlAssociation;
-
-import java.util.HashMap;
 
 public class UrlAssociationDAO {
 	private static final RedisDAO dao=RedisDAO.getInstance();
@@ -15,27 +14,28 @@ public class UrlAssociationDAO {
 		return instance;
 	}
 	
-	public String getLongUrl(String shortUrl){
-		UrlAssociation ua=new UrlAssociation(shortUrl, dao.getValue(shortUrl));
-		if(ua.isEmpty()){
-			return "error";//TODO
+	public UrlAssociation getUrlAssociation(String shortUrl){
+		MyJSonString jsonString=dao.getValue(shortUrl);
+		if(jsonString.getJsonString()==null){
+			return null;
 		}
-		return ua.getLongUrl();
+		return new UrlAssociation(shortUrl, jsonString);
 	}
 	
-	public boolean addAssociation(String shortUrl,String longUrl){
-		UrlAssociation ua=new UrlAssociation(shortUrl, longUrl);
-		return dao.setValue(shortUrl, ua.getJsonString());
-	}
-	
-	public void addClick(String shortUrl,String ipAddress){
-		UrlAssociation ua=new UrlAssociation(shortUrl, dao.getValue(shortUrl));
-		ua.addClick(ipAddress);
-		dao.setValue(shortUrl, ua.getJsonString());
+	public boolean newAssociation(UrlAssociation ua){
+		if(isExistingShortUrl(ua.getShortUrl())){
+			return false;
+		}
+		dao.setValue(ua.getShortUrl(), ua.getJsonString());
+		return true;
 	}
 	
 	public boolean isExistingShortUrl(String shortUrl){
-		return (dao.getValue(shortUrl)==null);
+		return (dao.getValue(shortUrl).getJsonString()==null);
 	}
 	
+	public boolean updateUrlAssociation(UrlAssociation ua){
+		dao.setValue(ua.getShortUrl(), ua.getJsonString());
+		return true;
+	}
 }
