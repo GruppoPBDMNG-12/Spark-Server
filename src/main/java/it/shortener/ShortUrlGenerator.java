@@ -1,14 +1,26 @@
 package it.shortener;
 
+import it.shortener.DAO.UrlAssociationDAO;
+
 public class ShortUrlGenerator {
 	private static final int URL_LENGHT = 6;
-
+	private static UrlAssociationDAO uaDAO=UrlAssociationDAO.getInstance();
 	public static void main(String[] args) {
-		System.out.println(ShortUrlGenerator.generateShortUrl("la mmammina"));
+		System.out.println(ShortUrlGenerator.generateShortUrl("la mammina"));
 
 	}
 
-	public static String generateShortUrl(String longUrl) {
+	public static String generateShortUrl(String longUrl){
+		boolean isUniqueShortUrl=false;
+		String generatedShortUrl=ShortUrlGenerator.generateShortUrlString(longUrl);
+		isUniqueShortUrl=!uaDAO.isExistingShortUrl(generatedShortUrl);
+		while(!isUniqueShortUrl){	
+	        	generatedShortUrl=ShortUrlGenerator.generateShortUrl(longUrl+Math.random()*1000);
+	        	isUniqueShortUrl=!uaDAO.isExistingShortUrl(generatedShortUrl);
+		}
+		return generatedShortUrl;
+	}
+	private static String generateShortUrlString(String longUrl) {
 		String[] elements = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
 				"k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v",
 				"w", "x", "y", "z", "1", "2", "3", "4", "5", "6", "7", "8",
@@ -38,7 +50,6 @@ public class ShortUrlGenerator {
 				mod = (long) (toBeConverted % Math.pow(numOfDiffChars, j));
 				toBeConverted = mod;
 			}
-
 		}
 		return convertedString;
 	}

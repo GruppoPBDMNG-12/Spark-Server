@@ -1,20 +1,16 @@
 package it.shortener;
-import it.shortener.DAO.UrlAssociationDAO;
 
+import it.shortener.DAO.UrlAssociationDAO;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-
 
 public class UrlAssociation {
 	private static final String SHORTURL_JSON_KEY="shortUrl";
@@ -118,23 +114,6 @@ public class UrlAssociation {
 	public static UrlAssociation getUrlAssociation(String shortUrl){
 		return uaDAO.getUrlAssociation(shortUrl);
 	}
-	
-	
-	/*
-	 * TEST
-	 */
-	/*public static void main(String[] args) {
-		UrlAssociation ua=new UrlAssociation("test1","test2");
-		ua.getJsonString();
-		ua.addClick("192.45.21.23");
-		ua.addClick("123.223.21.53");
-		ua.getJsonString();
-		System.out.println(ua.generateStats());
-		System.out.println("JSON URL ASC: "+ua.getJsonString().getJsonString());
-	}*/
-	
-	
-	
 	
 	private JSONArray generateStats(){
 

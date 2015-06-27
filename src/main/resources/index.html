@@ -61,8 +61,9 @@
 						alert("erroreeee");
 					});
 				}
-				$scope.generate = function() {
-
+				$scope.generate = function() {//TODO
+					return "http://localhost:4567/generateShortUrls?longUrl="
+					+ $scope.longUrl;
 				}
 			});
 		</script>

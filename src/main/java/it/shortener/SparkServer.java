@@ -24,6 +24,7 @@ public class SparkServer {
 	
 		private static final String BEGINNING_JSON_KEY="data";
 		
+		private static final String GENERATE_SHORT_URL_KEY="shortUrl";
 		private static final String GET_LONG_URL_KEY="longUrl";
 		private static final String STATS_KEY = "stats";
 		
@@ -59,18 +60,11 @@ public class SparkServer {
 	            public Object handle(Request request, Response response) {
 	                String longUrl=request.queryParams("longUrl");
 	                String shortUrl=ShortUrlGenerator.generateShortUrl(longUrl);
-	                String toReturn="";
-	                /*TODO CREATE GENERATOR CLASS
-	                String existingLongUrl=uaDAO.getUrlAssociation(shortUrl).getLongUrl();
-	                if(existingLongUrl!=null){
-	                	if(existingLongUrl.equalsIgnoreCase(longUrl)){
-	                		toReturn=ERROR_ALREADY_MAPPED_LONG_URL;
-	                	}else{
-	                		shortUrl=ShortUrlGenerator.generateShortUrl(longUrl+Math.random()*1000);
-	                	}
-	                }else{
-	                	toReturn=GENERATED_SHORT_URL_JSON.replace("?", shortUrl);
-	                }*/
+	                JSONObject dataObj=new JSONObject();
+	                dataObj.put(ERR_KEY, NO_ERR_VALUE);
+	                dataObj.put(GENERATE_SHORT_URL_KEY, shortUrl);
+	                JSONObject toReturn=new JSONObject();
+	                toReturn.put(BEGINNING_JSON_KEY, dataObj);
 	                return toReturn;
 	            }
 	        });
@@ -144,21 +138,3 @@ public class SparkServer {
 	        
 	    }
 	}
-//ORIGINAL EXAMPLE
-/*get(new Route("/hello") {
-    @Override
-    public Object handle(Request request, Response response) {
-    	String a=request.queryParams("firstName");
-    	Set<String> queryParams = request.queryParams();
-    	
-	    StringBuilder str = new StringBuilder();
-	    str.append("Request Parameters are <br/>"+a);
-	    for(String param : queryParams){
-	    	
-	    	str.append(param).append(" ").append(request.queryParams(param)).append("<br />");
-	    }
-	    
-	    return str.toString();
-    }
-});*/
-
