@@ -1,4 +1,4 @@
-package it.shortener;
+package it.shortener.utility;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

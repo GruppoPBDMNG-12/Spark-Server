@@ -19,6 +19,12 @@ public class RedisDAO {
 		return instance;
 	}
 	
+	public boolean exist(String shortUrl){
+		openConnection();
+		boolean exists=jedis.exists(shortUrl);
+		closeConnection();
+		return exists;
+	}
 	public void remove(String shortUrl){
 		openConnection();
 		jedis.del(shortUrl);
@@ -26,15 +32,18 @@ public class RedisDAO {
 	}
 	public MyJSonString getValue(String shortUrl){
 		openConnection();
-		MyJSonString jsonString=new MyJSonString(jedis.get("shortUrl"));
+		String result=jedis.get(shortUrl);
+		if(result==null){
+			return null;
+		}
+		MyJSonString jsonString=new MyJSonString(result);
 		closeConnection();
 		return jsonString;
 	}
 	
 	
 	public void setValue(String shortUrl,MyJSonString jsonString){
-		System.out.println("set value "+jsonString);
-	    jedis.set("shortUrl", jsonString.getJsonString());
+	    jedis.set(shortUrl, jsonString.getJsonString());
 	}	
 	
 	private void openConnection(){
@@ -45,8 +54,6 @@ public class RedisDAO {
 	}
 	
 	public static void main(String[] args) {
-		/*MyJSonString a=RedisDAO.getInstance().getValue("csada");
-		System.out.println(a.getJsonString());*/
-		RedisDAO.getInstance().remove("pronto");
+		
 	}
 }

@@ -1,4 +1,4 @@
-package it.shortener;
+package it.shortener.utility;
 
 import it.shortener.DAO.UrlAssociationDAO;
 
@@ -13,10 +13,10 @@ public class ShortUrlGenerator {
 	public static String generateShortUrl(String longUrl){
 		boolean isUniqueShortUrl=false;
 		String generatedShortUrl=ShortUrlGenerator.generateShortUrlString(longUrl);
-		isUniqueShortUrl=!uaDAO.isExistingShortUrl(generatedShortUrl);
+		isUniqueShortUrl=uaDAO.isUnique(generatedShortUrl);
 		while(!isUniqueShortUrl){	
 	        	generatedShortUrl=ShortUrlGenerator.generateShortUrl(longUrl+Math.random()*1000);
-	        	isUniqueShortUrl=!uaDAO.isExistingShortUrl(generatedShortUrl);
+	        	isUniqueShortUrl=uaDAO.isUnique(generatedShortUrl);
 		}
 		return generatedShortUrl;
 	}

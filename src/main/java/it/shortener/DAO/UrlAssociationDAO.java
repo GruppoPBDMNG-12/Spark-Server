@@ -16,22 +16,22 @@ public class UrlAssociationDAO {
 	
 	public UrlAssociation getUrlAssociation(String shortUrl){
 		MyJSonString jsonString=dao.getValue(shortUrl);
-		if(jsonString.getJsonString()==null){
+		if(jsonString==null){
 			return null;
 		}
 		return new UrlAssociation(shortUrl, jsonString);
 	}
 	
 	public boolean newAssociation(UrlAssociation ua){
-		if(isExistingShortUrl(ua.getShortUrl())){
+		if(!isUnique(ua.getShortUrl())){
 			return false;
 		}
 		dao.setValue(ua.getShortUrl(), ua.getJsonString());
 		return true;
 	}
 	
-	public boolean isExistingShortUrl(String shortUrl){
-		return (dao.getValue(shortUrl).getJsonString()==null);
+	public boolean isUnique(String shortUrl){
+		return (dao.getValue(shortUrl)==null);
 	}
 	
 	public boolean updateUrlAssociation(UrlAssociation ua){

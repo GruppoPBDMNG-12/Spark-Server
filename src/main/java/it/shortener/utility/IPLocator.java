@@ -1,9 +1,7 @@
-package it.shortener;
+package it.shortener.utility;
 import java.io.File;
-import java.io.IOException;
 import com.maxmind.geoip.Location;
 import com.maxmind.geoip.LookupService;
-import com.maxmind.geoip.regionName;
 
 public class IPLocator {
 	private static final IPLocator istance = new IPLocator();
@@ -15,7 +13,7 @@ public class IPLocator {
 
 	public static void main(String[] args) {
 		IPLocator obj = new IPLocator();
-		ServerLocation location = obj.getLocation("192.168.0.1");
+		String location = obj.getLocation("192.168.0.1");
 		System.out.println(location);
 	}
 
@@ -24,7 +22,7 @@ public class IPLocator {
 		file = new File(path + "\\GeoLiteCity.dat");
 	}
 
-	public ServerLocation getLocation(String ipAddress) {
+	public String getLocation(String ipAddress) {
 		ServerLocation serverLocation = null;
 		try {
 
@@ -32,24 +30,12 @@ public class IPLocator {
 			LookupService lookup = new LookupService(file,
 					LookupService.GEOIP_MEMORY_CACHE);
 			Location locationServices = lookup.getLocation(ipAddress);
-			// serverLocation.setCountryCode(locationServices.countryCode);
 			serverLocation.setCountryName(locationServices.countryName);
 
-			/*
-			 * serverLocation.setRegion(locationServices.region);
-			 * serverLocation.setRegionName(regionName.regionNameByCode(
-			 * locationServices.countryCode, locationServices.region));
-			 * serverLocation.setCity(locationServices.city);
-			 * serverLocation.setPostalCode(locationServices.postalCode);
-			 * serverLocation
-			 * .setLatitude(String.valueOf(locationServices.latitude));
-			 * serverLocation
-			 * .setLongitude(String.valueOf(locationServices.longitude));
-			 */
 		} catch (Exception e) {
 			serverLocation.setCountryName("localhost");
 		}
-		return serverLocation;
+		return serverLocation.toString();
 
 	}
 
