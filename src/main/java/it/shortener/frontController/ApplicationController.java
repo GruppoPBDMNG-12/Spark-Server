@@ -1,8 +1,9 @@
-package it.shortener.frontControllere;
+package it.shortener.frontController;
 
-import it.shortener.UrlAssociation;
+import it.shortener.entity.UrlAssociation;
 import it.shortener.utility.BadWordsChecker;
 import it.shortener.utility.ShortUrlGenerator;
+
 import org.json.JSONObject;
 
 public class ApplicationController {

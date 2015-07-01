@@ -1,6 +1,6 @@
 package test;
 
-import it.shortener.UrlAssociation;
+import it.shortener.entity.UrlAssociation;
 import it.shortener.utility.ShortUrlGenerator;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package it.shortener;
+package it.shortener.entity;
 
 import java.text.DateFormat;
 import java.text.ParseException;

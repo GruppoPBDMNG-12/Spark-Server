@@ -1,4 +1,4 @@
-package it.shortener;
+package it.shortener.utility;
 
 public class MyJSonString {
 	private String json;

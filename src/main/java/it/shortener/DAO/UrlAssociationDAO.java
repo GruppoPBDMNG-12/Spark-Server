@@ -1,7 +1,7 @@
 package it.shortener.DAO;
 
-import it.shortener.MyJSonString;
-import it.shortener.UrlAssociation;
+import it.shortener.entity.UrlAssociation;
+import it.shortener.utility.MyJSonString;
 
 public class UrlAssociationDAO {
 	private static final RedisDAO dao=RedisDAO.getInstance();

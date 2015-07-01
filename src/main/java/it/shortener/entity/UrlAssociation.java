@@ -1,7 +1,9 @@
-package it.shortener;
+package it.shortener.entity;
 
 import it.shortener.DAO.UrlAssociationDAO;
+import it.shortener.frontController.ApplicationController;
 import it.shortener.utility.IPLocator;
+import it.shortener.utility.MyJSonString;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -27,6 +29,10 @@ public class UrlAssociation {
 	private static final String NUM_CLICKS_MONTH_KEY="This month clicks";
 	private static final String NUM_CLICKS_YEAR_KEY="This year clicks";
 	private static final String MAX_LOC_KEY="Max number of clicks from";
+	
+	private static final String LOCATION_NAME_KEY="location";
+	private static final String LOCATION_NUM_OF_CLICKS_KEY="click";
+	
 
 	private String shortUrl;
 	private String longUrl;
@@ -155,10 +161,15 @@ public class UrlAssociation {
 		}
 
 		String maxLoc=null;
+		JSONArray locationsJsonArray=new JSONArray();
 		Set<String>locations=locationsClicks.keySet();
 		for(String s:locations){
+			JSONObject locationObj=new JSONObject();
+			locationObj.put(LOCATION_NAME_KEY, s);
+			locationObj.put(LOCATION_NUM_OF_CLICKS_KEY, locationsClicks.get(s)+"");
+			locationsJsonArray.put(locationObj);
 			if(maxLoc==null){
-				maxLoc=s;;
+				maxLoc=s;
 			}else{
 				if(locationsClicks.get(maxLoc)<locationsClicks.get(s)){
 					maxLoc=s;
@@ -194,9 +205,16 @@ public class UrlAssociation {
 		JSONObject numMaxLocJsonObj=new JSONObject();
 		numMaxLocJsonObj.put("name", MAX_LOC_KEY);
 		numMaxLocJsonObj.put("value", maxLoc);
-		statsJsonArray.put(numMaxLocJsonObj);		
+		statsJsonArray.put(numMaxLocJsonObj);	
+		
+
+		JSONObject locationGraphObject=new JSONObject();
+		locationGraphObject.put("name", "GraphData");
+		locationGraphObject.put("value", locationsJsonArray);
+		statsJsonArray.put(locationGraphObject);	
 		return statsJsonArray;
 	}
-
-
+	public static void main(String[] args) {
+		System.out.println(ApplicationController.getStats("bBYnHf"));
+	}
 }

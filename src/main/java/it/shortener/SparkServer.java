@@ -2,10 +2,13 @@ package it.shortener;
 
 import static spark.Spark.*;
 import it.shortener.DAO.RedisDAO;
-import it.shortener.frontControllere.ApplicationController;
+import it.shortener.entity.UrlAssociation;
+import it.shortener.frontController.ApplicationController;
 import it.shortener.utility.IndexFileReader;
+
 import java.io.IOException;
 import java.io.OutputStream;
+
 import spark.*;
 
 public class SparkServer {
