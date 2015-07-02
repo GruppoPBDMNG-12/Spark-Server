@@ -4,6 +4,7 @@ import it.shortener.entity.UrlAssociation;
 import it.shortener.utility.MyJSonString;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 
@@ -24,6 +25,12 @@ public class RedisDAO {
 		boolean exists=jedis.exists(shortUrl);
 		closeConnection();
 		return exists;
+	}
+	public void keylist(){
+		openConnection();
+		Set<String>a=jedis.keys("");
+		System.out.println(a);
+		closeConnection();
 	}
 	public void remove(String shortUrl){
 		openConnection();

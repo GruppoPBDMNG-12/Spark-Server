@@ -65,16 +65,13 @@ public class UrlAssociation {
 	private UrlAssociation(String shortUrl,String longUrl){
 		this.shortUrl=shortUrl;
 		this.longUrl=longUrl;
-		this.date=new Date();
-		checkLongUrl();
+		longUrl=longUrl.replace("http://", "");
+		longUrl=longUrl.replace("https://", "");
+		longUrl="http://"+longUrl;
 		clicks=new ArrayList<Click>();
+		this.date=new Date();
 	}
 	
-	private void checkLongUrl() {
-		if(!longUrl.startsWith("http://") || !longUrl.startsWith("https://")){
-			longUrl="http://"+longUrl;
-		}
-	}
 	
 	public JSONArray getStats(){
 		return generateStats();

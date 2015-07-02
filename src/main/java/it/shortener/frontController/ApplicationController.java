@@ -126,4 +126,13 @@ public class ApplicationController {
 			return toReturn;
 		}
 
+	public static String redirect(String shortUrl,String ipAddress){
+			UrlAssociation ua = UrlAssociation
+					.getUrlAssociation(shortUrl);
+			if (ua != null) {
+				ua.addClick(ipAddress);
+				return ua.getLongUrl();
+			}
+		return "";
+	}
 }

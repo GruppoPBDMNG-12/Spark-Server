@@ -13,7 +13,6 @@ public class GenerateRandomClicks {
 		ArrayList<String>urls=HREFRetriver.retriveUrls(path);
 		for(String url:urls){
 			String shortUrl=ShortUrlGenerator.generateShortUrl(url);
-			System.out.println("aggiungo "+shortUrl);
 			UrlAssociation.createNewAssociation(shortUrl, url);
 			shortUrls.add(shortUrl);
 		}
@@ -27,7 +26,7 @@ public class GenerateRandomClicks {
 		
 		for(String shortUrl:shortUrls){
 			System.out.println(shortUrl);
-			String[] generatedIp=RandomGaussianIPGenerator.generateIPAdrresses(100);
+			String[] generatedIp=RandomGaussianIPGenerator.generateIPAdrresses(10);
 			for(int i=0;i<generatedIp.length;i++){
 				UrlAssociation.getUrlAssociation(shortUrl).addClick(generatedIp[i]);
 			}
