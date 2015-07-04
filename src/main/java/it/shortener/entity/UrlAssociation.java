@@ -30,6 +30,7 @@ public class UrlAssociation {
 	private static final String NUM_CLICKS_YEAR_KEY="This year clicks";
 	private static final String MAX_LOC_KEY="Max number of clicks from";
 	
+	
 	private static final String LOCATION_NAME_KEY="location";
 	private static final String LOCATION_NUM_OF_CLICKS_KEY="click";
 	
