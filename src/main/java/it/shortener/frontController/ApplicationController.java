@@ -8,19 +8,19 @@ import org.json.JSONObject;
 
 public class ApplicationController {
 
-	private static final String BEGINNING_JSON_KEY = "data";
+	public static final String BEGINNING_JSON_KEY = "data";
 
-	private static final String GENERATE_SHORT_URL_KEY = "shortUrl";
-	private static final String GET_LONG_URL_KEY = "longUrl";
-	private static final String STATS_KEY = "stats";
+	public static final String GENERATE_SHORT_URL_KEY = "shortUrl";
+	public static final String GET_LONG_URL_KEY = "longUrl";
+	public static final String STATS_KEY = "stats";
 
-	private static final String ERR_KEY = "err";
-	private static final String NO_ERR_VALUE = "ok";
-	private static final String ERR_USED_SHORT_URL_VALUE = "used";
-	private static final String ERR_KEY_NOT_FOUND_VALUE = "keyNotFound";
-	private static final String ERR_EMPTY_LONG_URL_VALUE = "Empty LongUrl";
-	private static final String ERR_EMPTY_SHORT_URL_VALUE = "Empty ShortUrl";
-	private static final String ERR_BAD_WORDS_IN_SHORT_URL_VALUE = "Bad Words in short url are not allowed";
+	public static final String ERR_KEY = "err";
+	public static final String NO_ERR_VALUE = "ok";
+	public static final String ERR_USED_SHORT_URL_VALUE = "used";
+	public static final String ERR_KEY_NOT_FOUND_VALUE = "keyNotFound";
+	public static final String ERR_EMPTY_LONG_URL_VALUE = "Empty LongUrl";
+	public static final String ERR_EMPTY_SHORT_URL_VALUE = "Empty ShortUrl";
+	public static final String ERR_BAD_WORDS_IN_SHORT_URL_VALUE = "Bad Words in short url are not allowed";
 
 	public static JSONObject addShortUrl(String shortUrl, String longUrl) {
 		JSONObject dataObj = new JSONObject();
@@ -28,13 +28,14 @@ public class ApplicationController {
 		 * String shortUrl = request.queryParams("shortUrl"); String longUrl =
 		 * request.queryParams("longUrl");
 		 */
+		try{
 		if (shortUrl.equalsIgnoreCase("undefined")
 				|| shortUrl.equalsIgnoreCase("")) {
 			dataObj.put(ERR_KEY, ERR_EMPTY_SHORT_URL_VALUE);
 		} else if (longUrl.equalsIgnoreCase("undefined")
 				|| longUrl.equalsIgnoreCase("")) {
 			dataObj.put(ERR_KEY, ERR_EMPTY_LONG_URL_VALUE);
-		} else if (BadWordsChecker.isBadWordsFree(shortUrl)) {
+		} else if (!BadWordsChecker.isBadWordsFree(shortUrl)) {
 			dataObj.put(ERR_KEY, ERR_BAD_WORDS_IN_SHORT_URL_VALUE);
 		} else {
 			boolean isCreated = UrlAssociation.createNewAssociation(shortUrl,
@@ -44,6 +45,9 @@ public class ApplicationController {
 			} else {
 				dataObj.put(ERR_KEY, ERR_USED_SHORT_URL_VALUE);
 			}
+		}
+		}catch(Exception e){
+			System.out.println(e.getMessage());
 		}
 		JSONObject toReturn = new JSONObject();
 		toReturn.put(BEGINNING_JSON_KEY, dataObj);

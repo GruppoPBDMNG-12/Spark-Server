@@ -15,7 +15,7 @@ public class BadWordsChecker {
 			BufferedReader bufferedReader=null;
 			try {
 				String path = System.getProperty("user.dir")
-						+ "\\src\\main\\resources";
+						+ "\\src\\main\\resources\\";
 				fileReader = new FileReader(path + "ProfanityWords.txt");
 
 				bufferedReader = new BufferedReader(fileReader);
@@ -29,6 +29,7 @@ public class BadWordsChecker {
 					}
 				}
 			} catch (Exception e) {
+				System.out.println("arrivo in errore" +e.getMessage());
 				try {
 					bufferedReader.close();
 				} catch (IOException e1) {
@@ -40,6 +41,7 @@ public class BadWordsChecker {
 	}
 	public static boolean isBadWordsFree(String s){
 		BadWordsChecker.init();
+		
 		for(String badWord:hashSet){
 			if(s.contains(badWord))
 				return false;

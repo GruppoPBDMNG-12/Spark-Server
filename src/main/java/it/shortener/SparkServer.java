@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.util.Set;
 
 import org.json.HTTP;
+import org.json.JSONObject;
 import org.omg.CORBA.RepositoryIdHelper;
 
 import spark.*;
@@ -30,37 +31,20 @@ public class SparkServer {
 			public Object handle(Request request, Response response) {
 				String shortUrl = request.queryParams("shortUrl");
 				String longUrl = request.queryParams("longUrl");
-				
+				SparkServer.setResponseHeader(request, response);
 				return ApplicationController.addShortUrl(shortUrl, longUrl);
 			}
 		});
+		
 		get(new Route("/generateShortUrl") {
 			@Override
 			public Object handle(Request request, Response response) {
-				SparkServer.setResponseHeader(request, response);
 				String longUrl = request.queryParams("longUrl");
-				
+				SparkServer.setResponseHeader(request, response);
 				return ApplicationController.generateShortUrl(longUrl).toString();
 			}
 		});
-		/*get(new Route("/index.html") {
-			@Override
-			public Object handle(Request request, Response response) {
-				Set<String> origin = (request.headers());
-				System.out.println(request.headers("Host"));
-				System.out.println(origin);
-				response.header("access-control-allow-origin", request.headers("Host"));
-				response.header("content-type", "text/plain");
-				OutputStream os;
-				try {
-					os = response.raw().getOutputStream();
-					IndexFileReader.getTextFile(os);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				return "";
-			}
-		});*/
+		
 		get(new Route("/getLongUrl") {
 			@Override
 			public Object handle(Request request, Response response) {
@@ -84,6 +68,7 @@ public class SparkServer {
 				String shortUrl = request.queryParams("shortUrl");
 				String ipAddress=request.ip();
 				SparkServer.setResponseHeader(request, response);
+				
 				return ApplicationController.addClick(shortUrl, ipAddress);
 			}
 		});
@@ -109,10 +94,6 @@ public class SparkServer {
 				return null;
 			}
 		});
-			 
-		 
-		 
-
 	}
 
 	 private static void setResponseHeader(Request req,Response res){

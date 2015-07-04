@@ -64,10 +64,9 @@ public class UrlAssociation {
 	
 	private UrlAssociation(String shortUrl,String longUrl){
 		this.shortUrl=shortUrl;
-		this.longUrl=longUrl;
 		longUrl=longUrl.replace("http://", "");
 		longUrl=longUrl.replace("https://", "");
-		longUrl="http://"+longUrl;
+		this.longUrl="http://"+longUrl;
 		clicks=new ArrayList<Click>();
 		this.date=new Date();
 	}
@@ -208,7 +207,7 @@ public class UrlAssociation {
 		JSONObject locationGraphObject=new JSONObject();
 		locationGraphObject.put("name", "GraphData");
 		locationGraphObject.put("value", locationsJsonArray);
-		statsJsonArray.put(locationGraphObject);	
+		//statsJsonArray.put(locationGraphObject);	
 		return statsJsonArray;
 	}
 	public static void main(String[] args) {
