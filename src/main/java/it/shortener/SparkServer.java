@@ -37,20 +37,13 @@ public class SparkServer {
 		get(new Route("/generateShortUrl") {
 			@Override
 			public Object handle(Request request, Response response) {
-				/*Set<String >a=request.headers();
-				for(String s:a){
-					System.out.println(s+" ="+ request.headers(s));
-				}
-				
-				response.header("access-control-allow-origin", request.headers("Host"));
-				response.header("content-type", "text/plain");*/
 				SparkServer.setResponseHeader(request, response);
 				String longUrl = request.queryParams("longUrl");
 				
 				return ApplicationController.generateShortUrl(longUrl).toString();
 			}
 		});
-		get(new Route("/index.html") {
+		/*get(new Route("/index.html") {
 			@Override
 			public Object handle(Request request, Response response) {
 				Set<String> origin = (request.headers());
@@ -67,11 +60,12 @@ public class SparkServer {
 				}
 				return "";
 			}
-		});
+		});*/
 		get(new Route("/getLongUrl") {
 			@Override
 			public Object handle(Request request, Response response) {
 				String shortUrl = request.queryParams("shortUrl");
+				SparkServer.setResponseHeader(request, response);
 				return ApplicationController.getLongUrl(shortUrl);
 			}
 		});
@@ -80,6 +74,7 @@ public class SparkServer {
 			@Override
 			public Object handle(Request request, Response response) {
 				String shortUrl = request.queryParams("shortUrl");
+				SparkServer.setResponseHeader(request, response);
 				return ApplicationController.getStats(shortUrl);
 			}
 		});
@@ -88,13 +83,13 @@ public class SparkServer {
 			public Object handle(Request request, Response response) {
 				String shortUrl = request.queryParams("shortUrl");
 				String ipAddress=request.ip();
+				SparkServer.setResponseHeader(request, response);
 				return ApplicationController.addClick(shortUrl, ipAddress);
 			}
 		});
 		 get(new Route("/*") {
 			 @Override
 				public Object handle(Request request, Response response) {
-				 
 				 RedisDAO.getInstance().keylist();
 				String longUrl=ApplicationController.redirect(request.pathInfo().substring(1), request.ip());
 				if(longUrl.isEmpty()){
@@ -122,12 +117,6 @@ public class SparkServer {
 
 	 private static void setResponseHeader(Request req,Response res){
 		 String origin=req.headers("Origin");
-			
-			/*
-			 * "access-control-allow-origin": origin,
-                 "content-type": "text/plain",
-                 "content-length": responseBody.length
-			 */
 		 res.header("access-control-allow-origin", origin);
 		 res.header("content-type", "text/plain");
 	 }
@@ -135,11 +124,6 @@ public class SparkServer {
 	
 	 private static void setOptionRequestResponseHeader(Request req,Response res){
 		 String origin=req.headers("Origin");
-		 /*"access-control-allow-origin": origin,
-         "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
-         "access-control-allow-headers": "content-type, accept",
-         "access-control-max-age": 10, // Seconds.
-         "content-length": 0*/
 		 res.header("access-control-allow-origin", origin);
 		 res.header("access-control-allow-methods", "GET, OPTIONS");
 		 res.header("access-control-allow-headers", "content-type, accept");
