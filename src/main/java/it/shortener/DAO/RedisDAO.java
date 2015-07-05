@@ -1,9 +1,6 @@
 package it.shortener.DAO;
 
-import it.shortener.entity.UrlAssociation;
 import it.shortener.utility.MyJSonString;
-
-import java.util.HashMap;
 import java.util.Set;
 
 import redis.clients.jedis.Jedis;
@@ -18,6 +15,11 @@ public class RedisDAO {
 	}
 	public static RedisDAO getInstance(){
 		return instance;
+	}
+	
+	public void checkConnection(){
+		openConnection();
+		closeConnection();
 	}
 	
 	public boolean exist(String shortUrl){
@@ -48,7 +50,6 @@ public class RedisDAO {
 		return jsonString;
 	}
 	
-	
 	public void setValue(String shortUrl,MyJSonString jsonString){
 	    jedis.set(shortUrl, jsonString.getJsonString());
 	}	
@@ -58,9 +59,5 @@ public class RedisDAO {
 	}
 	private void closeConnection(){
 		jedis.close();
-	}
-	
-	public static void main(String[] args) {
-		
 	}
 }

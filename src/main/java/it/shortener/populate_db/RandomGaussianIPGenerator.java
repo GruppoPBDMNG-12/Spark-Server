@@ -1,4 +1,4 @@
-package test;
+package it.shortener.populate_db;
 
 import java.util.Random;
 

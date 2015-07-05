@@ -4,6 +4,7 @@ import static spark.Spark.*;
 import it.shortener.DAO.RedisDAO;
 import it.shortener.entity.UrlAssociation;
 import it.shortener.frontController.ApplicationController;
+import it.shortener.populate_db.DatabasePopolutor;
 import it.shortener.utility.IndexFileReader;
 
 import java.io.IOException;
@@ -18,14 +19,26 @@ import spark.*;
 
 public class SparkServer {
 
-
 	public static void main(String[] args) {
-		RedisDAO.getInstance().remove("pronto");
-		System.out.println("inserito?"
-				+ UrlAssociation.createNewAssociation("pronto", "sonoPronto"));
-		System.out.println("eccolo "
-				+ UrlAssociation.getUrlAssociation("pronto").getLongUrl());
-
+		RedisDAO.getInstance().checkConnection();
+		
+		if(args.length>0){
+			if(args[0].equalsIgnoreCase("true")){
+				if(args.length>1){
+					try{
+						int numberOfClicks=Integer.parseInt(args[1]);
+						if(numberOfClicks>=0){
+							DatabasePopolutor.popoluteDB(numberOfClicks);
+						}else{
+							DatabasePopolutor.popoluteDB(DatabasePopolutor.defaultNumberOfClicksForShortUrl);
+						}
+					}catch(Exception e){
+						System.out.println("Errore in the parameters. The secondo value should be an int.");
+					}
+				}
+			}
+		}
+		
 		get(new Route("/addShortUrl") {
 			@Override
 			public Object handle(Request request, Response response) {
@@ -62,6 +75,7 @@ public class SparkServer {
 				return ApplicationController.getStats(shortUrl);
 			}
 		});
+		
 		get(new Route("/addClick") {
 			@Override
 			public Object handle(Request request, Response response) {
@@ -72,7 +86,8 @@ public class SparkServer {
 				return ApplicationController.addClick(shortUrl, ipAddress);
 			}
 		});
-		 get(new Route("/*") {
+		
+		get(new Route("/*") {
 			 @Override
 				public Object handle(Request request, Response response) {
 				 RedisDAO.getInstance().keylist();
@@ -86,6 +101,7 @@ public class SparkServer {
 				return "";
 			}
 		});
+		
 		options(new Route("/*") {
 			
 			@Override
@@ -109,8 +125,6 @@ public class SparkServer {
 		 res.header("access-control-allow-methods", "GET, OPTIONS");
 		 res.header("access-control-allow-headers", "content-type, accept");
 		 res.header("access-control-max-age", 10+"");
-		 res.header("content-length", 0+"");
-
-		 
+		 res.header("content-length", 0+""); 
 	 }
 }

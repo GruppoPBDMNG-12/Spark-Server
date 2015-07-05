@@ -45,9 +45,9 @@ public class UrlAssociation {
 	
 	public UrlAssociation(String shortUrl, MyJSonString jsonString){
 		this.shortUrl=shortUrl;
-		String a="{\"test\": "+jsonString.getJsonString()+"}";
+		String a="{\"it.shortener.populate_db\": "+jsonString.getJsonString()+"}";
 		JSONObject obj=new JSONObject(a);
-		obj=obj.getJSONObject("test");
+		obj=obj.getJSONObject("it.shortener.populate_db");
 		this.longUrl=obj.getString(LONGURL_JSON_KEY);
 		this.shortUrl=obj.getString(SHORTURL_JSON_KEY);
 		try {
@@ -63,7 +63,7 @@ public class UrlAssociation {
 		
 	}
 	
-	private UrlAssociation(String shortUrl,String longUrl){
+	public UrlAssociation(String shortUrl,String longUrl){
 		this.shortUrl=shortUrl;
 		longUrl=longUrl.replace("http://", "");
 		longUrl=longUrl.replace("https://", "");
@@ -211,7 +211,5 @@ public class UrlAssociation {
 		//statsJsonArray.put(locationGraphObject);	
 		return statsJsonArray;
 	}
-	public static void main(String[] args) {
-		System.out.println(ApplicationController.getStats("bBYnHf"));
-	}
+	
 }
